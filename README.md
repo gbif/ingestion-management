@@ -11,5 +11,5 @@ For each issue:
  4. if the change was accidental, we wait until the data provider rolls back the changes
 
 See also this video for background information:
-<iframe src="https://player.vimeo.com/video/873639382?h=8d9becf065" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-<p><a href="https://vimeo.com/873639382">GBIF and occurenceID stability</a> from <a href="https://vimeo.com/gbif">GBIF</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+[<img width="1031" alt="Screenshot 2023-10-13 at 10 10 50" src="https://github.com/gbif/ingestion-management/assets/7677271/c11e48cf-47ed-44d7-ad48-31402823b64a">](https://vimeo.com/873639382)
+
