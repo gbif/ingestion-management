@@ -1,4 +1,3 @@
-# Dataset ingestion management
 
 This repository is for tracking of data issues seen during data ingestion processes. It contains a number of issues automatically logged when dataset ingestions are paused.
 
@@ -10,6 +9,5 @@ For each issue:
  3. if the change was on purpose and there is no such table, we resume ingestion and new gbifid will be created
  4. if the change was accidental, we wait until the data provider rolls back the changes
 
-See also this video for background information:
-[<img width="1031" alt="Screenshot 2023-10-13 at 10 10 50" src="https://github.com/gbif/ingestion-management/assets/7677271/c11e48cf-47ed-44d7-ad48-31402823b64a">](https://vimeo.com/873639382)
+See also this video for background information: https://vimeo.com/873639382
 
