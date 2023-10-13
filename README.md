@@ -9,3 +9,7 @@ For each issue:
  2. if the change was on purpose and the data providers are able to provide us with a table of old and new occurrenceIDs, we can update those on GBIF's side (https://github.com/gbif/pipelines/tree/dev/gbif/identifiers/diagnostics)
  3. if the change was on purpose and there is no such table, we resume ingestion and new gbifid will be created
  4. if the change was accidental, we wait until the data provider rolls back the changes
+
+See also this video for background information:
+<iframe src="https://player.vimeo.com/video/873639382?h=8d9becf065" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+<p><a href="https://vimeo.com/873639382">GBIF and occurenceID stability</a> from <a href="https://vimeo.com/gbif">GBIF</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
