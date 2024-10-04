@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up GitHub CLI
-      uses: actions/cli/gh-action@v3
+      uses: github/cli-action@v3
 
 
       
