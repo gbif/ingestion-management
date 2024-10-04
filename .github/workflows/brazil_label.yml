@@ -7,7 +7,7 @@ on:
       - opened   # When a new issue is created
   push:
     branches:
-      - main  # Trigger on pushes to the 'main' branch
+      - master  # Trigger on pushes to the 'main' branch
 jobs:
   assign_and_label:
     runs-on: ubuntu-latest
