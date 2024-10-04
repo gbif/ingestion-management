@@ -1,0 +1,20 @@
+name: Auto Assign and Label Issue with GH CLI
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  assign_and_label:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up GitHub CLI
+      uses: actions/cli/gh-action@v3
+
+
+      
