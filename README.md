@@ -11,9 +11,28 @@ For each issue:
 
 See also this video for background information: https://vimeo.com/873639382
 
+Last updated: 2025-11-21 13:27 UTC
+
+### Closed Issues by Label
+
+| Label | Closed Issues |
+|-------|---------------|
+| occurrenceID - publisher changed back | 165 |
+| occurrenceID - resumes ingestion with new | 518 |
+| occurrenceID - migrated | 322 |
+| occurrenceID - checks disabled | 200 |
+| occurrenceID - large change in record counts | 83 |
+
+### Issue Closure Timeline
+
+![Issue Closure Timeline](stats_timeline.png)
+
+### Unique Publishers per Month
+
+![Unique Publishers per Month](stats_publishers_timeline.png)
 ## Issue Statistics
 
-Last updated: 2025-11-21 13:27 UTC
+Last updated: 2025-11-21 19:47 UTC
 
 ### Closed Issues by Label
 
