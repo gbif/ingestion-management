@@ -1,0 +1,28 @@
+# Secrets file for local testing
+.secrets
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Statistics data
+stats_data/
+stats_timeline.png
+stats_publishers_timeline.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

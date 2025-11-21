@@ -1,0 +1,60 @@
+name: Issue Statistics
+
+on:
+  # Run monthly on the 1st at midnight UTC
+  schedule:
+    - cron: '0 0 1 * *'
+  
+  # Run when changes are pushed to master
+  push:
+    branches:
+      - master
+  
+  # Run when issues are closed or labeled
+  issues:
+    types:
+      - closed
+      - labeled
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  update_stats:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: |
+          pip install matplotlib pandas
+      
+      - name: Run statistics generation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash stats.sh --update-readme --quiet
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git add stats_timeline.png
+          git add stats_publishers_timeline.png
+          git add stats_data/ || true
+          git diff --staged --quiet || git commit -m "Update issue statistics [automated]"
+          git push
