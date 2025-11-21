@@ -11,10 +11,8 @@ env/
 venv/
 .venv/
 
-# Statistics data
+# Statistics data (temporary)
 stats_data/
-stats_timeline.png
-stats_publishers_timeline.png
 
 # OS
 .DS_Store
