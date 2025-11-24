@@ -412,17 +412,17 @@ echo ""
 if [ "$UPDATE_README" = true ]; then
   echo "Updating README..."
   # Read current README (in parent directory)
-  if [ -f ../README.md ]; then
-    # Check if stats section exists
-    if grep -q "## Issue Statistics" ../README.md; then
-      # Remove old stats section (from ## Issue Statistics to end of file)
-      # Use awk to keep everything before "## Issue Statistics"
-      awk '/## Issue Statistics/{exit}1' ../README.md > ../README.md.tmp
-      mv ../README.md.tmp ../README.md
-    fi
-    
-    # Append new stats section
-    cat stats_data/table.md >> ../README.md
+    if [ -f ../README.md ]; then
+        # Check if a stats section exists (any heading containing the word "stats", case-insensitive)
+        if grep -qi '^#.*stats' ../README.md; then
+            # Remove old stats section (from the first heading that contains "stats" to end of file)
+            # Use awk with case-insensitive matching to keep everything before that heading
+            awk 'BEGIN{IGNORECASE=1} /^#.*stats/ {exit} {print}' ../README.md > ../README.md.tmp
+            mv ../README.md.tmp ../README.md
+        fi
+
+        # Append new stats section
+        cat stats_data/table.md >> ../README.md
   else
     # Create new README with stats
     cat stats_data/table.md > ../README.md
