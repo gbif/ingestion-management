@@ -5,11 +5,6 @@ on:
   schedule:
     - cron: '0 0 1 * *'
   
-  # Run when changes are pushed to master
-  push:
-    branches:
-      - master
-  
   # Run when issues are closed or labeled
   issues:
     types:
@@ -54,6 +49,4 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add README.md
           git add stats/*.png
-          git add stats/stats_data/ || true
-          git diff --staged --quiet || git commit -m "Update issue statistics [automated]"
-          git push
+          git diff --staged --quiet || (git commit -m "Update issue statistics [automated]" && git pull --rebase && git push)
