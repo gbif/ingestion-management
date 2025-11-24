@@ -30,8 +30,6 @@ Last updated: 2025-11-21 13:27 UTC
 ### Unique Publishers per Month
 
 ![Unique Publishers per Month](stats_publishers_timeline.png)
-## Issue Statistics
-
 Last updated: 2025-11-21 19:47 UTC
 
 ### Closed Issues by Label
@@ -41,6 +39,27 @@ Last updated: 2025-11-21 19:47 UTC
 | occurrenceID - publisher changed back | 165 |
 | occurrenceID - resumes ingestion with new | 518 |
 | occurrenceID - migrated | 322 |
+| occurrenceID - checks disabled | 200 |
+| occurrenceID - large change in record counts | 83 |
+
+### Issue Closure Timeline
+
+![Issue Closure Timeline](stats_timeline.png)
+
+### Unique Publishers per Month
+
+![Unique Publishers per Month](stats_publishers_timeline.png)
+## Issue Statistics
+
+Last updated: 2025-11-24 07:54 UTC
+
+### Closed Issues by Label
+
+| Label | Closed Issues |
+|-------|---------------|
+| occurrenceID - publisher changed back | 165 |
+| occurrenceID - resumes ingestion with new | 518 |
+| occurrenceID - migrated | 323 |
 | occurrenceID - checks disabled | 200 |
 | occurrenceID - large change in record counts | 83 |
 
