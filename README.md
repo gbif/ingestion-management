@@ -51,7 +51,7 @@ Last updated: 2025-11-21 19:47 UTC
 ![Unique Publishers per Month](stats_publishers_timeline.png)
 ## Issue Statistics
 
-Last updated: 2025-11-24 07:54 UTC
+Last updated: 2025-11-24 08:38 UTC
 
 ### Closed Issues by Label
 
@@ -65,8 +65,12 @@ Last updated: 2025-11-24 07:54 UTC
 
 ### Issue Closure Timeline
 
-![Issue Closure Timeline](stats_timeline.png)
+![Issue Closure Timeline](stats/stats_timeline.png)
 
 ### Unique Publishers per Month
 
-![Unique Publishers per Month](stats_publishers_timeline.png)
+![Unique Publishers per Month](stats/stats_publishers_timeline.png)
+
+### Total Occurrences per Month
+
+![Total Occurrences per Month](stats/stats_occurrences_timeline.png)
