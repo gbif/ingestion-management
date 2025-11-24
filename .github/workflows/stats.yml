@@ -40,21 +40,20 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install matplotlib pandas
+          pip install matplotlib pandas pygbif
       
       - name: Run statistics generation
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash stats.sh --update-readme --quiet
+          bash stats/stats.sh --update-readme --quiet
       
       - name: Commit and push changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          git add stats_timeline.png
-          git add stats_publishers_timeline.png
-          git add stats_data/ || true
+          git add stats/*.png
+          git add stats/stats_data/ || true
           git diff --staged --quiet || git commit -m "Update issue statistics [automated]"
           git push

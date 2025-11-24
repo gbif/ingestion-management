@@ -12,7 +12,7 @@ venv/
 .venv/
 
 # Statistics data (temporary)
-stats_data/
+stats/stats_data/
 
 # OS
 .DS_Store
@@ -24,3 +24,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Local history
+.history/
+
