@@ -41,9 +41,10 @@ jobs:
     name: Compare IPT and GBIF Versions
     needs: [get-open-issues]
     if: |
-      (github.event_name == 'push' && needs.get-open-issues.outputs.issues != '[]') ||
-      github.event_name == 'workflow_dispatch' || 
-      github.event_name == 'issues'
+      always() &&
+      ((github.event_name == 'push' && needs.get-open-issues.outputs.issues != '[]') ||
+       github.event_name == 'workflow_dispatch' || 
+       github.event_name == 'issues')
     runs-on: ubuntu-latest
     strategy:
       matrix:
