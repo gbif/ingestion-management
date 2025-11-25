@@ -33,7 +33,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get all open issues without "checked" or "contacted" labels
-          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select((.labels | map(.name) | contains(["checked", "contacted"])) | not) | .number]')
+          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select([.labels[].name] | any(. == "checked" or . == "contacted") | not) | .number]')
           echo "issues=$issues" >> $GITHUB_OUTPUT
           echo "Found issues to check: $issues"
 
