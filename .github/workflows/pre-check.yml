@@ -1,0 +1,199 @@
+name: Pre-check New Issues
+
+on:
+  issues:
+    types: [opened]
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to process'
+        required: true
+        type: number
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  get-open-issues:
+    name: Get Open Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      issues: ${{ steps.get-issues.outputs.issues }}
+    steps:
+      - name: Get open issues without excluded labels
+        id: get-issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all open issues without "checked" or "contacted" labels
+          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select((.labels | map(.name) | contains(["checked", "contacted"])) | not) | .number]')
+          echo "issues=$issues" >> $GITHUB_OUTPUT
+          echo "Found issues to check: $issues"
+
+  compare-versions:
+    name: Compare IPT and GBIF Versions
+    needs: [get-open-issues]
+    if: |
+      (github.event_name == 'push' && needs.get-open-issues.outputs.issues != '[]') ||
+      github.event_name == 'workflow_dispatch' || 
+      github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        issue_number: ${{ github.event_name == 'push' && fromJson(needs.get-open-issues.outputs.issues) || fromJson(format('[{0}]', github.event.inputs.issue_number || github.event.issue.number)) }}
+      fail-fast: false
+      max-parallel: 5
+    env:
+      GBIF_USER: ${{ secrets.GBIF_USER }}
+      GBIF_PWD: ${{ secrets.GBIF_PWD }}
+    outputs:
+      status: ${{ steps.compare.outputs.STATUS }}
+      ipt_records: ${{ steps.compare.outputs.IPT_RECORDS }}
+      gbif_records: ${{ steps.compare.outputs.GBIF_RECORDS }}
+      ipt_version: ${{ steps.compare.outputs.IPT_VERSION }}
+      last_modified_by: ${{ steps.compare.outputs.LAST_MODIFIED_BY }}
+      overlap_pct: ${{ steps.compare.outputs.OVERLAP_PCT }}
+      record_diff: ${{ steps.compare.outputs.RECORD_DIFF }}
+      record_diff_pct: ${{ steps.compare.outputs.RECORD_DIFF_PCT }}
+      has_large_record_change: ${{ steps.compare.outputs.HAS_LARGE_RECORD_CHANGE }}
+    
+    steps:
+      - name: Check if issue already has checked label
+        id: check-label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUM="${{ github.event_name == 'push' && matrix.issue_number || github.event.inputs.issue_number || github.event.issue.number }}"
+          echo "ISSUE_NUMBER=$ISSUE_NUM" >> $GITHUB_ENV
+          
+          LABELS=$(gh issue view $ISSUE_NUM --repo ${{ github.repository }} --json labels --jq '.labels[].name')
+          
+          if echo "$LABELS" | grep -q "^checked$"; then
+            echo "Issue #$ISSUE_NUM already has 'checked' label, skipping"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if echo "$LABELS" | grep -q "^contacted$"; then
+            echo "Issue #$ISSUE_NUM already has 'contacted' label, skipping"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        if: steps.check-label.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        if: steps.check-label.outputs.skip != 'true'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+
+      - name: Install R dependencies
+        if: steps.check-label.outputs.skip != 'true'
+        run: |
+          install.packages(c('rgbif', 'dplyr', 'rvest', 'stringr'), repos='https://cloud.r-project.org')
+        shell: Rscript {0}
+
+      - name: Check installation type
+        if: steps.check-label.outputs.skip != 'true'
+        id: check-type
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x pre-check/check_installation_type.sh
+          bash pre-check/check_installation_type.sh ${{ env.ISSUE_NUMBER }}
+
+      - name: Compare IPT and GBIF versions
+        if: steps.check-label.outputs.skip != 'true'
+        id: compare
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+        run: |
+          # Only run if installation type check passed
+          SHOULD_CONTINUE=$(cat /tmp/should_continue.txt 2>/dev/null || echo "false")
+          if [ "$SHOULD_CONTINUE" != "true" ]; then
+            echo "Skipping comparison - not IPT_INSTALLATION"
+            exit 0
+          fi
+          
+          chmod +x pre-check/run_version_comparison.sh
+          bash pre-check/run_version_comparison.sh ${{ env.ISSUE_NUMBER }}
+
+      - name: Add label for large record change
+        if: steps.check-label.outputs.skip != 'true' && steps.compare.outputs.HAS_LARGE_RECORD_CHANGE == 'TRUE'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ env.ISSUE_NUMBER }} --add-label "occurrenceID - large change in record counts"
+          echo "Added label: occurrenceID - large change in record counts"
+
+      - name: Summary
+        if: steps.check-label.outputs.skip != 'true' && always()
+        run: |
+          echo "## Version Comparison Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Issue**: #${{ env.ISSUE_NUMBER }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.compare.outputs.STATUS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **IPT Version**: ${{ steps.compare.outputs.IPT_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Last Modified By**: ${{ steps.compare.outputs.LAST_MODIFIED_BY }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Record Counts" >> $GITHUB_STEP_SUMMARY
+          echo "- **IPT Records**: ${{ steps.compare.outputs.IPT_RECORDS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **GBIF Records**: ${{ steps.compare.outputs.GBIF_RECORDS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Difference**: ${{ steps.compare.outputs.RECORD_DIFF }} (${{ steps.compare.outputs.RECORD_DIFF_PCT }}%)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Large Change**: ${{ steps.compare.outputs.HAS_LARGE_RECORD_CHANGE }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### OccurrenceID Overlap" >> $GITHUB_STEP_SUMMARY
+          echo "- **Overlap**: ${{ steps.compare.outputs.OVERLAP_PCT }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Has Duplicates**: ${{ steps.compare.outputs.HAS_DUPLICATES }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Add comment to issue
+        if: steps.check-label.outputs.skip != 'true' && steps.compare.conclusion != 'skipped' && steps.compare.outputs.STATUS != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat << 'EOF' > comment.md
+          ## Pre-check Results
+
+          **Status:** ${{ steps.compare.outputs.STATUS }}
+
+          ### Version Information
+          - **IPT Version:** ${{ steps.compare.outputs.IPT_VERSION }}
+          - **Last Modified By:** ${{ steps.compare.outputs.LAST_MODIFIED_BY }}
+
+          ### Record Counts
+          - **IPT Records:** ${{ steps.compare.outputs.IPT_RECORDS }}
+          - **GBIF Records:** ${{ steps.compare.outputs.GBIF_RECORDS }}
+          - **Difference:** ${{ steps.compare.outputs.RECORD_DIFF }} (${{ steps.compare.outputs.RECORD_DIFF_PCT }}%)
+          - **Large Change Detected:** ${{ steps.compare.outputs.HAS_LARGE_RECORD_CHANGE }}
+
+          ### OccurrenceID Analysis
+          - **Overlap:** ${{ steps.compare.outputs.OVERLAP_PCT }}%
+          - **Has Duplicates:** ${{ steps.compare.outputs.HAS_DUPLICATES }}
+          EOF
+          
+          gh issue comment ${{ env.ISSUE_NUMBER }} --body-file comment.md
+          echo "✅ Added pre-check summary comment to issue #${{ env.ISSUE_NUMBER }}"
+
+      - name: Mark issue as checked
+        if: steps.check-label.outputs.skip != 'true' && always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ env.ISSUE_NUMBER }} --add-label "checked"
+          echo "✅ Added 'checked' label to issue #${{ env.ISSUE_NUMBER }}"
+
+  # Future pre-check jobs can be added here
+
