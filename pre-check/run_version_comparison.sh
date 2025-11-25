@@ -29,7 +29,7 @@ echo "Found dataset key: $DATASET_KEY"
 echo ""
 
 # Run the R script and capture output
-OUTPUT=$(Rscript "$SCRIPT_DIR/compare_versions_precheck.R" "$DATASET_KEY" 2>&1)
+OUTPUT=$(R_LIBS_USER="${R_LIBS_USER}" Rscript "$SCRIPT_DIR/compare_versions_precheck.R" "$DATASET_KEY" 2>&1)
 EXIT_CODE=$?
 
 # Print the output
