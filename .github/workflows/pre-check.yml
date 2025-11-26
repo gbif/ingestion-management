@@ -68,6 +68,12 @@ jobs:
         with:
           r-version: 'release'
 
+      - name: Install system dependencies
+        if: steps.check-label.outputs.skip != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
+
       - name: Install R dependencies
         if: steps.check-label.outputs.skip != 'true'
         run: |
