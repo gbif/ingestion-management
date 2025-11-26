@@ -3,8 +3,6 @@ name: Pre-check New Issues
 on:
   issues:
     types: [opened]
-  paths-ignore:
-      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       issue_number:
@@ -17,37 +15,10 @@ permissions:
   contents: read
 
 jobs:
-  get-open-issues:
-    name: Get Open Issues
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    outputs:
-      issues: ${{ steps.get-issues.outputs.issues }}
-    steps:
-      - name: Get open issues without excluded labels
-        id: get-issues
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Get all open issues without "checked" or "Contacted" labels
-          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select([.labels[].name] | any(. == "checked" or . == "Contacted") | not) | .number]')
-          echo "issues=$issues" >> $GITHUB_OUTPUT
-          echo "Found issues to check: $issues"
-
   compare-versions:
     name: Compare IPT and GBIF Versions
-    needs: [get-open-issues]
-    if: |
-      always() &&
-      ((github.event_name == 'push' && needs.get-open-issues.outputs.issues != '[]') ||
-       github.event_name == 'workflow_dispatch' || 
-       github.event_name == 'issues')
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        issue_number: ${{ github.event_name == 'push' && fromJson(needs.get-open-issues.outputs.issues) || fromJson(format('[{0}]', github.event.inputs.issue_number || github.event.issue.number)) }}
-      fail-fast: false
-      max-parallel: 5
     env:
       GBIF_USER: ${{ secrets.GBIF_USER }}
       GBIF_PWD: ${{ secrets.GBIF_PWD }}
@@ -68,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUM="${{ github.event_name == 'push' && matrix.issue_number || github.event.inputs.issue_number || github.event.issue.number }}"
+          ISSUE_NUM="${{ github.event.inputs.issue_number || github.event.issue.number }}"
           echo "ISSUE_NUMBER=$ISSUE_NUM" >> $GITHUB_ENV
           
           LABELS=$(gh issue view $ISSUE_NUM --repo ${{ github.repository }} --json labels --jq '.labels[].name')
