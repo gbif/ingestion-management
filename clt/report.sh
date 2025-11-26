@@ -52,27 +52,27 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 fi
 
 
-echo "Going to compare ipt version with GBIF"
-read -p "Do you want to continue? (y/n): " answer
-answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
+# echo "Going to compare ipt version with GBIF"
+# read -p "Do you want to continue? (y/n): " answer
+# answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+# if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 
 
-	while true; do
+# 	while true; do
 
-	echo "Please enter dataset version:"
-	read userInput
-	Rscript.exe -e "gbifim::compare_versions('$uuid',$userInput)"
+# 	echo "Please enter dataset version:"
+# 	read userInput
+# 	Rscript.exe -e "gbifim::compare_versions('$uuid',$userInput)"
 
-    read -p "Do you want to check another version? (y/n): " userInput
-    # Check if user wants to quit
-    if [[ "$userInput" == "n" || "$userInput" == "q" ]]; then
-        echo "DONE"
-        break # Exit the loop
-    fi
-	done
+#     read -p "Do you want to check another version? (y/n): " userInput
+#     # Check if user wants to quit
+#     if [[ "$userInput" == "n" || "$userInput" == "q" ]]; then
+#         echo "DONE"
+#         break # Exit the loop
+#     fi
+# 	done
 
-fi
+# fi
 
 echo "Attempt to generate mappings file?"
 read -p "Do you want to continue? (y/n): " answer
@@ -83,31 +83,29 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	read v1
 	echo "Please enter dataset previous version:"
 	read v2
-	cd /mnt/c/Users/ftw712/Desktop/
-	Rscript.exe "packages/ingestion-management/align_old_new_ids.R" "$uuid" "$v1" "$v2"
-	cd $current_working_dir
+	Rscript.exe "$SCRIPT_DIR/align_old_new_ids.R" "$uuid" "$v1" "$v2"
  fi
 
-echo "Going to compare manually supplied version with GBIF"
-read -p "Do you want to continue? (y/n): " answer
-answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
+# echo "Going to compare manually supplied version with GBIF"
+# read -p "Do you want to continue? (y/n): " answer
+# answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+# if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 
-	echo "Please enter link:"
-	read link
+# 	echo "Please enter link:"
+# 	read link
 	
-	echo "Please enter occ_file:"
-	read occ_file
+# 	echo "Please enter occ_file:"
+# 	read occ_file
 	
-	echo "Please enter sep:"
-	read sep
+# 	echo "Please enter sep:"
+# 	read sep
 	
-	echo "Please enter quote:"
-	read quote
+# 	echo "Please enter quote:"
+# 	read quote
 
-	Rscript.exe -e "gbifim::compare_versions('$uuid',ep='$link',occ_file='$occ_file',sep='$sep',quote=$quote)"
+# 	Rscript.exe -e "gbifim::compare_versions('$uuid',ep='$link',occ_file='$occ_file',sep='$sep',quote=$quote)"
 	
-fi
+# fi
 
 
 echo "Going to send email ..."
@@ -131,8 +129,9 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	# Display the saved output
 	echo $user_choice
 	
-	# send email 
-	powershell.exe -File 'C:\Users\ftw712\Desktop\scripts\shell\im\send_email.ps1' "$datasettitle" "$datasetkey" "$user_choice"
+	# send email - convert WSL path to Windows path for PowerShell
+	WINDOWS_SCRIPT_DIR=$(wslpath -w "$SCRIPT_DIR")
+	powershell.exe -File "$WINDOWS_SCRIPT_DIR\\send_email.ps1" "$datasettitle" "$datasetkey" "$user_choice"
 	echo "Creating draft Email ..." 
 fi
 
@@ -170,8 +169,9 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	# Display the saved output
 	echo $user_choice
 	
-	# send email 
-	powershell.exe -File 'C:\Users\ftw712\Desktop\scripts\shell\im\send_digest_email.ps1' "$ALL_DATASET_KEYS" "$user_choice"
+	# send email - convert WSL path to Windows path for PowerShell
+	WINDOWS_SCRIPT_DIR=$(wslpath -w "$SCRIPT_DIR")
+	powershell.exe -File "$WINDOWS_SCRIPT_DIR\\send_digest_email.ps1" "$ALL_DATASET_KEYS" "$user_choice"
 	echo "Creating draft Email ..." 
 	cd $starting_dir
 fi
@@ -269,13 +269,6 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	ssh -t jwaller@prodcrawler1-vh.gbif.org
 fi
 
-
-echo "Do you want to double check with rgbif::dataset_process? (yes/no)"
-read -p "Do you want to continue? (y/n): " answer
-answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
-	Rscript.exe -e "rgbif::dataset_process('$uuid') |> purrr::pluck('data') |> head(1) |> dplyr::select(startedCrawling,finishReason)"
-fi
 
 
 

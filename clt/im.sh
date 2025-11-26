@@ -20,9 +20,10 @@ echo "4. check special github @s"
 echo "5. allow failed ids for all datasets in a search"
 echo "6. close issues older than 3 months"
 echo "7. migrate batch ids"
-echo "8. Exit"
+echo "8. allow large change in occurrence records"
+echo "9. Exit"
 
-read -p "Enter your choice [1-6]: " choice
+read -p "Enter your choice [1-9]: " choice
 
 case $choice in
     1)
@@ -64,6 +65,31 @@ case $choice in
        ;; 
 
     8)
+        echo "Allow large change in occurrence records..."
+        echo ""
+        echo "Scanning for issues with label 'occurrenceID - large change in record counts'..."
+        echo ""
+        
+        # Get project root
+        PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+        cd "$PROJECT_ROOT"
+        
+        # List all issues with the label
+        gh issue list --search 'is:issue is:open label:"occurrenceID - large change in record counts"' --limit 50
+        
+        echo ""
+        echo "Please enter the datasetKey uuid to process:"
+        read uuid
+        
+        if [ -z "$uuid" ]; then
+            echo "No UUID provided. Exiting."
+            exit 1
+        fi
+        
+        "$SCRIPT_DIR/allow_large_change.sh" $uuid
+        ;;
+
+    9)
         echo "Exiting..."
         exit 0
         ;;
