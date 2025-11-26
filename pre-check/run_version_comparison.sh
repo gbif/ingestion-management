@@ -37,15 +37,18 @@ set -e
 # Extract metrics from output and write to GITHUB_OUTPUT
 if [ -f /tmp/r_output.txt ]; then
     grep "^STATUS=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "STATUS={}" >> $GITHUB_OUTPUT || true
+    grep "^IPT_URL=" /tmp/r_output.txt | cut -d= -f2- | xargs -I {} echo "IPT_URL={}" >> $GITHUB_OUTPUT || true
     grep "^IPT_RECORDS=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "IPT_RECORDS={}" >> $GITHUB_OUTPUT || true
     grep "^GBIF_RECORDS=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "GBIF_RECORDS={}" >> $GITHUB_OUTPUT || true
     grep "^IPT_VERSION=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "IPT_VERSION={}" >> $GITHUB_OUTPUT || true
-    grep "^LAST_MODIFIED_BY=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "LAST_MODIFIED_BY={}" >> $GITHUB_OUTPUT || true
+    grep "^LAST_MODIFIED_BY=" /tmp/r_output.txt | cut -d= -f2- | xargs -I {} echo "LAST_MODIFIED_BY={}" >> $GITHUB_OUTPUT || true
     grep "^OVERLAP_PCT=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "OVERLAP_PCT={}" >> $GITHUB_OUTPUT || true
     grep "^HAS_DUPLICATES=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "HAS_DUPLICATES={}" >> $GITHUB_OUTPUT || true
     grep "^RECORD_DIFF=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "RECORD_DIFF={}" >> $GITHUB_OUTPUT || true
     grep "^RECORD_DIFF_PCT=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "RECORD_DIFF_PCT={}" >> $GITHUB_OUTPUT || true
     grep "^HAS_LARGE_RECORD_CHANGE=" /tmp/r_output.txt | cut -d= -f2 | xargs -I {} echo "HAS_LARGE_RECORD_CHANGE={}" >> $GITHUB_OUTPUT || true
+    grep "^IPT_SAMPLE_IDS=" /tmp/r_output.txt | cut -d= -f2- | xargs -I {} echo "IPT_SAMPLE_IDS={}" >> $GITHUB_OUTPUT || true
+    grep "^GBIF_SAMPLE_IDS=" /tmp/r_output.txt | cut -d= -f2- | xargs -I {} echo "GBIF_SAMPLE_IDS={}" >> $GITHUB_OUTPUT || true
     rm /tmp/r_output.txt
 fi
 

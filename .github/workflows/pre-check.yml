@@ -151,6 +151,9 @@ jobs:
 
           **Status:** ${{ steps.compare.outputs.STATUS }}
 
+          ### IPT Resource
+          - **IPT URL:** ${{ steps.compare.outputs.IPT_URL }}
+
           ### Version Information
           - **IPT Version:** ${{ steps.compare.outputs.IPT_VERSION }}
           - **Last Modified By:** ${{ steps.compare.outputs.LAST_MODIFIED_BY }}
@@ -164,6 +167,10 @@ jobs:
           ### OccurrenceID Analysis
           - **Overlap:** ${{ steps.compare.outputs.OVERLAP_PCT }}%
           - **Has Duplicates:** ${{ steps.compare.outputs.HAS_DUPLICATES }}
+
+          ### Sample OccurrenceIDs
+          - **IPT Sample (first 5):** ${{ steps.compare.outputs.IPT_SAMPLE_IDS }}
+          - **GBIF Sample (first 5):** ${{ steps.compare.outputs.GBIF_SAMPLE_IDS }}
           EOF
           
           gh issue comment ${{ env.ISSUE_NUMBER }} --body-file comment.md

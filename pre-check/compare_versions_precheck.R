@@ -138,7 +138,7 @@ tryCatch({
                               email = Sys.getenv("GBIF_EMAIL"))
     cat("  Download key:", dd[[1]], "\n")
     cat("  Waiting for download to complete...\n")
-    rgbif::occ_download_wait(dd, status_ping = 10, curlopts = list(verbose = FALSE))
+    rgbif::occ_download_wait(dd, status_ping = 10)
     cat("  ✓ Download completed\n")
   } else {
     cat("  ✓ Using cached download:", dd[[1]], "\n")
@@ -280,6 +280,7 @@ cat("\n")
 
 # Output for GitHub Actions
 cat("STATUS=", status, "\n", sep = "")
+cat("IPT_URL=", ipt_url, "\n", sep = "")
 cat("IPT_RECORDS=", nrow(ipt_data), "\n", sep = "")
 cat("GBIF_RECORDS=", nrow(gbif_data), "\n", sep = "")
 cat("IPT_VERSION=", latest_version, "\n", sep = "")
@@ -289,6 +290,10 @@ cat("HAS_DUPLICATES=", has_duplicates, "\n", sep = "")
 cat("RECORD_DIFF=", record_diff, "\n", sep = "")
 cat("RECORD_DIFF_PCT=", record_diff_pct, "\n", sep = "")
 cat("HAS_LARGE_RECORD_CHANGE=", has_large_record_change, "\n", sep = "")
+
+# Output sample IDs (up to 5 from each)
+cat("IPT_SAMPLE_IDS=", paste(head(ipt_data$occurrenceID, 5), collapse = ","), "\n", sep = "")
+cat("GBIF_SAMPLE_IDS=", paste(head(gbif_data$occurrenceID, 5), collapse = ","), "\n", sep = "")
 
 # Exit with appropriate code
 if (status == "contact") {
