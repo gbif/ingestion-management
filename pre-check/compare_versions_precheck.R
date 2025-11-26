@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
 })
 
 # Setup GBIF authentication
+cat("→ Checking GBIF authentication...\n")
 if (Sys.getenv("GBIF_USER") == "" || Sys.getenv("GBIF_PWD") == "") {
   cat("✗ ERROR: GBIF_USER and GBIF_PWD environment variables must be set\n")
   quit(status = 1)
@@ -19,6 +20,10 @@ if (Sys.getenv("GBIF_USER") == "" || Sys.getenv("GBIF_PWD") == "") {
 if (Sys.getenv("GBIF_EMAIL") == "") {
   Sys.setenv(GBIF_EMAIL = paste0(Sys.getenv("GBIF_USER"), "@gbif.org"))
 }
+
+cat("  ✓ GBIF_USER:", Sys.getenv("GBIF_USER"), "\n")
+cat("  ✓ GBIF_EMAIL:", Sys.getenv("GBIF_EMAIL"), "\n")
+cat("  ✓ GBIF_PWD: [set]\n")
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -118,12 +123,15 @@ tryCatch({
 
 # Step 3: Get GBIF data
 cat("\n→ Fetching GBIF data...\n")
+cat("  Dataset key:", datasetKey, "\n")
 tryCatch({
+  cat("  Checking for cached download...\n")
   dd <- rgbif::occ_download_cached(rgbif::pred("datasetKey", datasetKey))
   
   if (is.na(dd)) {
     cat("  No cached download found, requesting new download...\n")
     cat("  (This may take several minutes...)\n")
+    cat("  Using credentials: user=", Sys.getenv("GBIF_USER"), " email=", Sys.getenv("GBIF_EMAIL"), "\n")
     dd <- rgbif::occ_download(rgbif::pred("datasetKey", datasetKey), 
                               user = Sys.getenv("GBIF_USER"),
                               pwd = Sys.getenv("GBIF_PWD"),
@@ -142,10 +150,9 @@ tryCatch({
   
   cat("  ✓ GBIF records:", nrow(gbif_data), "\n")
 }, error = function(e) {
-  cat("✗ ERROR fetching GBIF data:", e$message, "\n")
-  cat("  Details:", conditionMessage(e), "\n")
-  cat("  Traceback:\n")
-  print(sys.calls())
+  cat("✗ ERROR fetching GBIF data:", conditionMessage(e), "\n")
+  cat("  Error class:", class(e), "\n")
+  traceback()
   quit(status = 1)
 })
 
