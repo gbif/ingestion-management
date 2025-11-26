@@ -4,24 +4,7 @@ on:
   # Run monthly on the 1st at midnight UTC
   schedule:
     - cron: '0 0 1 * *'
-  
-  # Run when changes are pushed to master (except automated stats updates)
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - 'README.md'
-      - 'stats/*.png'
-  
-  # Run when issues are closed or labeled
-  issues:
-    types:
-      - closed
-      - labeled
-  
-  # Allow manual trigger
-  workflow_dispatch:
-
+      
 permissions:
   contents: write
   issues: read
