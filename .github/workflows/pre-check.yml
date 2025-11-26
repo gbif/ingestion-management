@@ -22,6 +22,7 @@ jobs:
     env:
       GBIF_USER: ${{ secrets.GBIF_USER }}
       GBIF_PWD: ${{ secrets.GBIF_PWD }}
+      GBIF_EMAIL: ${{ secrets.GBIF_EMAIL }}
     outputs:
       status: ${{ steps.compare.outputs.STATUS }}
       ipt_records: ${{ steps.compare.outputs.IPT_RECORDS }}
