@@ -164,7 +164,7 @@ jobs:
           echo "✅ Added pre-check summary comment to issue #${{ env.ISSUE_NUMBER }}"
 
       - name: Mark issue as checked
-        if: steps.check-label.outputs.skip != 'true' && always()
+        if: steps.check-label.outputs.skip != 'true' && steps.compare.outputs.STATUS != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
