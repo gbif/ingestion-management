@@ -72,14 +72,20 @@ jobs:
         if: steps.check-label.outputs.skip != 'true'
         run: |
           install.packages(c('rgbif', 'dplyr', 'rvest', 'stringr'), repos='https://cloud.r-project.org')
+          cat("Installation complete. Checking installed packages:\n")
+          cat("Library paths:", .libPaths(), "\n")
+          cat("Installed packages:\n")
+          print(installed.packages()[,c("Package", "LibPath")])
         shell: Rscript {0}
 
       - name: Verify R package installation
         if: steps.check-label.outputs.skip != 'true'
         run: |
           echo "R_LIBS_USER path: $R_LIBS_USER"
-          Rscript -e "cat('Installed packages:', paste(.libPaths(), collapse=', '), '\n')"
-          Rscript -e "if(!require('rgbif')) { cat('ERROR: rgbif not found\n'); quit(status=1) } else { cat('SUCCESS: rgbif is available\n') }"
+          echo "Checking library paths:"
+          Rscript -e ".libPaths()"
+          echo "Checking for rgbif:"
+          Rscript -e "if('rgbif' %in% installed.packages()[,'Package']) { cat('rgbif is installed\n') } else { cat('rgbif NOT found\n'); q(status=1) }"
 
       - name: Check installation type
         if: steps.check-label.outputs.skip != 'true'
