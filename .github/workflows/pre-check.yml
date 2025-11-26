@@ -103,6 +103,37 @@ jobs:
           chmod +x pre-check/check_installation_type.sh
           bash pre-check/check_installation_type.sh ${{ env.ISSUE_NUMBER }}
 
+      - name: Add installation type label
+        if: steps.check-label.outputs.skip != 'true' && steps.check-type.outputs.INSTALLATION_TYPE != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          INSTALL_TYPE="${{ steps.check-type.outputs.INSTALLATION_TYPE }}"
+          # Convert to human-readable label
+          case "$INSTALL_TYPE" in
+            "IPT_INSTALLATION")
+              LABEL="installation: IPT"
+              ;;
+            "HTTP_INSTALLATION")
+              LABEL="installation: HTTP"
+              ;;
+            "BIOCASE_INSTALLATION")
+              LABEL="installation: BioCASe"
+              ;;
+            "TAPIR_INSTALLATION")
+              LABEL="installation: TAPIR"
+              ;;
+            "DIGIR_INSTALLATION")
+              LABEL="installation: DiGIR"
+              ;;
+            *)
+              LABEL="installation: Other"
+              ;;
+          esac
+          
+          gh issue edit ${{ env.ISSUE_NUMBER }} --add-label "$LABEL"
+          echo "✅ Added label: $LABEL"
+
       - name: Compare IPT and GBIF versions
         if: steps.check-label.outputs.skip != 'true' && steps.check-type.outputs.should_continue == 'true'
         id: compare
@@ -176,8 +207,26 @@ jobs:
           gh issue comment ${{ env.ISSUE_NUMBER }} --body-file comment.md
           echo "✅ Added pre-check summary comment to issue #${{ env.ISSUE_NUMBER }}"
 
+      - name: Add comment for non-IPT installations
+        if: steps.check-label.outputs.skip != 'true' && steps.check-type.outputs.should_continue == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat << 'EOF' > comment.md
+          ## Pre-check Results
+
+          **Installation Type:** ${{ steps.check-type.outputs.INSTALLATION_TYPE }}
+
+          This dataset is not from an IPT installation. The IPT version comparison check has been skipped as it only applies to IPT installations.
+
+          The issue has been marked as checked.
+          EOF
+          
+          gh issue comment ${{ env.ISSUE_NUMBER }} --body-file comment.md
+          echo "✅ Added pre-check summary comment for non-IPT installation to issue #${{ env.ISSUE_NUMBER }}"
+
       - name: Mark issue as checked
-        if: steps.check-label.outputs.skip != 'true' && steps.compare.outputs.STATUS != ''
+        if: steps.check-label.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
