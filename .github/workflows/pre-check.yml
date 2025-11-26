@@ -3,10 +3,7 @@ name: Pre-check New Issues
 on:
   issues:
     types: [opened]
-  push:
-    branches:
-      - master
-    paths-ignore:
+  paths-ignore:
       - '.github/workflows/**'
   workflow_dispatch:
     inputs:
@@ -32,8 +29,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get all open issues without "checked" or "contacted" labels
-          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select([.labels[].name] | any(. == "checked" or . == "contacted") | not) | .number]')
+          # Get all open issues without "checked" or "Contacted" labels
+          issues=$(gh issue list --repo ${{ github.repository }} --state open --json number,labels --jq '[.[] | select([.labels[].name] | any(. == "checked" or . == "Contacted") | not) | .number]')
           echo "issues=$issues" >> $GITHUB_OUTPUT
           echo "Found issues to check: $issues"
 
@@ -82,8 +79,8 @@ jobs:
             exit 0
           fi
           
-          if echo "$LABELS" | grep -q "^contacted$"; then
-            echo "Issue #$ISSUE_NUM already has 'contacted' label, skipping"
+          if echo "$LABELS" | grep -q "^Contacted$"; then
+            echo "Issue #$ISSUE_NUM already has 'Contacted' label, skipping"
             echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
