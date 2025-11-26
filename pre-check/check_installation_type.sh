@@ -28,7 +28,7 @@ fi
 echo "Found installation key: $INST_KEY"
 
 # Get installation type using R script
-INSTALLATION_TYPE=$(R_LIBS_USER="${R_LIBS_USER}" Rscript "$SCRIPT_DIR/get_installation_type.R" "$INST_KEY")
+INSTALLATION_TYPE=$(Rscript "$SCRIPT_DIR/get_installation_type.R" "$INST_KEY")
 
 if [ $? -ne 0 ] || [ -z "$INSTALLATION_TYPE" ]; then
     echo "ERROR: Failed to retrieve installation type"
