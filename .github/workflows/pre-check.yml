@@ -103,19 +103,12 @@ jobs:
           bash pre-check/check_installation_type.sh ${{ env.ISSUE_NUMBER }}
 
       - name: Compare IPT and GBIF versions
-        if: steps.check-label.outputs.skip != 'true'
+        if: steps.check-label.outputs.skip != 'true' && steps.check-type.outputs.should_continue == 'true'
         id: compare
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
         run: |
-          # Only run if installation type check passed
-          SHOULD_CONTINUE=$(cat /tmp/should_continue.txt 2>/dev/null || echo "false")
-          if [ "$SHOULD_CONTINUE" != "true" ]; then
-            echo "Skipping comparison - not IPT_INSTALLATION"
-            exit 0
-          fi
-          
           chmod +x pre-check/run_version_comparison.sh
           bash pre-check/run_version_comparison.sh ${{ env.ISSUE_NUMBER }}
 
