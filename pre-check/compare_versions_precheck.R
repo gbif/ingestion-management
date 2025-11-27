@@ -209,7 +209,8 @@ record_diff <- nrow(ipt_data) - nrow(gbif_data)
 record_diff_pct <- round(100 * abs(record_diff) / nrow(gbif_data), 1)
 
 # Determine if there's a large change in record counts (>20% change)
-has_large_record_change <- record_diff_pct > 20
+# BUT exclude cases where overlap is 0% (meaning IDs genuinely changed, not a false positive)
+has_large_record_change <- record_diff_pct > 20 && ipt_in_gbif_pct > 0
 
 if (has_large_record_change) {
   if (record_diff > 0) {
