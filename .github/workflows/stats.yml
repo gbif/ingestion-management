@@ -4,6 +4,8 @@ on:
   # Run monthly on the 1st at midnight UTC
   schedule:
     - cron: '0 0 1 * *'
+  # Allow manual trigger
+  workflow_dispatch:
       
 permissions:
   contents: write
