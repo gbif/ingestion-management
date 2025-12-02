@@ -425,7 +425,9 @@ if [ "$UPDATE_README" = true ]; then
   fi
   echo "✓ README updated"
   echo ""
-fiif [ "$QUIET" = false ]; then
+fi
+
+if [ "$QUIET" = false ]; then
   echo "=== README Update Preview ==="
   echo ""
   cat stats_data/table.md

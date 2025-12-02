@@ -1,4 +1,7 @@
+cat("Starting migrate_ids_check_exist.R")
+
 suppressMessages({library(dplyr)})
+
 
 args <- commandArgs(trailingOnly = TRUE)
 # setwd("C:/Users/ftw712/Desktop/")

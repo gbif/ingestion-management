@@ -37,8 +37,8 @@ case $choice in
 	"$SCRIPT_DIR/new_issue_scan.sh"
 	;;			
     3)
-        echo "Running Script 2..."
-        ls /mnt/c/Users/ftw712/Desktop | grep -E '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'        
+        echo "Running Script 3..."
+        ls | grep -E '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'        
         echo "Please enter the datasetKey uuid:"
 		read uuid
 		"$SCRIPT_DIR/migrate_ids.sh" $uuid

@@ -38,9 +38,7 @@ else
     echo "Checking for duplicates..."
     
     # Assuming $uuid is the variable that holds your CSV file name
-    cd /mnt/c/Users/ftw712/Desktop/
-	Rscript.exe "scripts/shell/im/migrate_ids_check_duplicates.R" "$uuid"
-	cd $current_working_dir
+	Rscript.exe migrate_ids_check_duplicates.R "$uuid"
 fi
 
 
@@ -67,9 +65,7 @@ else
 	echo $uuid
 
     # Assuming $uuid is the variable that holds your CSV file name
-    cd /mnt/c/Users/ftw712/Desktop/
-	Rscript.exe "scripts/shell/im/migrate_ids_check_exist.R" "$uuid" "$ipt_version"
-	cd $current_working_dir
+	Rscript.exe migrate_ids_check_exist.R "$uuid" "$ipt_version"
 fi
 
 ################## remove ids not on IPT 
@@ -97,9 +93,7 @@ else
 	echo $uuid
 
     # Assuming $uuid is the variable that holds your CSV file name
-    cd /mnt/c/Users/ftw712/Desktop/
-	Rscript.exe "scripts/shell/im/migrate_ids_rm_not_on_ipt.R" "$uuid" "$ipt_version"
-	cd $current_working_dir
+	Rscript.exe migrate_ids_rm_not_on_ipt.R "$uuid" "$ipt_version"
 fi
 
 
@@ -129,9 +123,10 @@ else
 	echo " /\\_/\\  "
 	echo "( o.o ) "
 	echo " > ^ < "
-	echo sudo -u crap -i 
-	echo cd ~crap/util
-	echo ./pipelines-gbif-id-migrator -f $1 -t $1 -p /home/jwaller/$1
+	echo "sudo -u crap -i <<EOF"
+	echo "cd ~/util"
+	echo "./pipelines-gbif-id-migrator -f $1 -t $1 -p /home/jwaller/$1"
+	echo "EOF"
 	echo " /\\_/\\  "
 	echo "( o.o ) "
 	echo " > ^ < "
@@ -209,8 +204,9 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	# Display the saved output
 	echo $user_choice
 	
-	# send email 
-	powershell.exe -File 'C:\Users\ftw712\Desktop\scripts\shell\im\successful_migration_email.ps1' "$datasettitle" "$datasetkey" "$user_choice"
+	# send email - convert WSL path to Windows path for PowerShell
+	WINDOWS_SCRIPT_DIR=$(wslpath -w "$SCRIPT_DIR")
+	powershell.exe -File "$WINDOWS_SCRIPT_DIR\\successful_migration_email.ps1" "$datasettitle" "$datasetkey" "$user_choice"
 	echo "Creating draft Email ..." 
 fi
 

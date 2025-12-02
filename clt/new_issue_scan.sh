@@ -24,9 +24,4 @@ echo $issue
 echo $DATASET_KEY
 
 echo "Going to open run report with this issue ..."
-read -p "Do you want to continue? (y/n): " answer
-answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
-	"$SCRIPT_DIR/report.sh" $DATASET_KEY 
-fi
-
+"$SCRIPT_DIR/report.sh" $DATASET_KEY 

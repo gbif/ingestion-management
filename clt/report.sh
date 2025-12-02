@@ -83,7 +83,8 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	read v1
 	echo "Please enter dataset previous version:"
 	read v2
-	Rscript.exe "$SCRIPT_DIR/align_old_new_ids.R" "$uuid" "$v1" "$v2"
+	WINDOWS_SCRIPT_DIR=$(wslpath -w "$SCRIPT_DIR")
+	Rscript.exe "$WINDOWS_SCRIPT_DIR\\align_old_new_ids.R" $uuid $v1 $v2
  fi
 
 # echo "Going to compare manually supplied version with GBIF"
