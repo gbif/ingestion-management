@@ -43,6 +43,13 @@ jobs:
           ISSUE_NUM="${{ github.event.inputs.issue_number || github.event.issue.number }}"
           echo "ISSUE_NUMBER=$ISSUE_NUM" >> $GITHUB_ENV
           
+          # Skip label check if triggered manually
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Manual run detected, proceeding regardless of labels"
+            echo "skip=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
           LABELS=$(gh issue view $ISSUE_NUM --repo ${{ github.repository }} --json labels --jq '.labels[].name')
           
           if echo "$LABELS" | grep -q "^checked$"; then

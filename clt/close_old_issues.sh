@@ -11,7 +11,7 @@ echo "Current date: $current_date"
 echo "6 months ago: $three_months_ago"
 
 echo 'is:issue created:<$three_months_ago is:open label:contacted'
-search="is:issue created:<$three_months_ago assignee:jhnwllr is:open label:contacted"
+search="is:issue created:<$three_months_ago assignee:jhnwllr is:open label:contacted -label:\"keep-paused\""
 # echo 'is:issue created:<$three_months_ago assignee:jhnwllr is:open label:contacted'
 # search="is:issue created:<$three_months_ago is:open label:contacted"
 "$SCRIPT_DIR/skip_checks_all_datasets.sh" "$search"	
