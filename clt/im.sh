@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Save the directory where the user invoked this script (passed from im.bat)
+ORIGINAL_DIR="${1:-$(pwd)}"
+shift 2>/dev/null  # Remove the first argument if it exists
+
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -38,9 +42,24 @@ case $choice in
 	;;			
     3)
         echo "Running Script 3..."
-        ls | grep -E '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'        
+        echo "Searching for UUID files in current directory..."
+        echo "Current directory: $ORIGINAL_DIR"
+        echo ""
+        
+        # Convert Windows path to WSL path if needed
+        if [[ "$ORIGINAL_DIR" == *":"* ]]; then
+            SEARCH_DIR=$(wslpath "$ORIGINAL_DIR" 2>/dev/null) || SEARCH_DIR="$ORIGINAL_DIR"
+        else
+            SEARCH_DIR="$ORIGINAL_DIR"
+        fi
+        
+        echo "UUID files found:"
+        ls -1 "$SEARCH_DIR" 2>/dev/null | grep -E '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' || echo "(none found)"
+        echo ""
         echo "Please enter the datasetKey uuid:"
 		read uuid
+		# Change to the directory containing the UUID file before running migrate_ids.sh
+		cd "$SEARCH_DIR"
 		"$SCRIPT_DIR/migrate_ids.sh" $uuid
         ;;
     4)

@@ -1,4 +1,5 @@
 #!/bin/bash
+set +e  # Don't exit on errors, let script continue
 eval `ssh-agent -s`
 ssh-add
 
@@ -36,9 +37,9 @@ if [[ $user_input == "no" ]] || [[ $user_input == "n" ]]; then
     echo "User chose to continue."
 else
     echo "Checking for duplicates..."
-    
-    # Assuming $uuid is the variable that holds your CSV file name
-	Rscript.exe migrate_ids_check_duplicates.R "$uuid"
+    # Convert paths to Windows format for Rscript.exe
+	WINDOWS_SCRIPT_PATH=$(wslpath -w "$SCRIPT_DIR/migrate_ids_check_duplicates.R")
+	Rscript.exe "$WINDOWS_SCRIPT_PATH" "$uuid" 2>&1
 fi
 
 
@@ -54,18 +55,18 @@ else
     echo "Checking for migration csv..."
     
 	iptpage=$(Rscript -e "rgbif::dataset_identifier('$uuid') |> dplyr::filter(type=='URL') |> dplyr::pull(identifier) |> unique() |> head(1) |> cat()")
-	echo $iptpage
-	powershell.exe -Command "Start-Process '$iptpage'"
+	echo "IPT page: $iptpage"
 
-    # Pause for user input
-    echo "Please enter latest version number..."
-    read -r ipt_version
+	echo "Scraping latest IPT version..."
+	WINDOWS_SCRIPT_PATH=$(wslpath -w "$SCRIPT_DIR/ipt_version_scrape.R")
+	ipt_version=$(Rscript.exe "$WINDOWS_SCRIPT_PATH" "$uuid" 2>/dev/null | tail -1)
+	echo "Latest IPT version: $ipt_version"
+	echo ""
 
-	echo $ipt_version
-	echo $uuid
-
-    # Assuming $uuid is the variable that holds your CSV file name
-	Rscript.exe migrate_ids_check_exist.R "$uuid" "$ipt_version"
+	echo "Running migrate_ids_check_exist.R..."
+	# Convert paths to Windows format for Rscript.exe
+	WINDOWS_SCRIPT_PATH=$(wslpath -w "$SCRIPT_DIR/migrate_ids_check_exist.R")
+	Rscript.exe "$WINDOWS_SCRIPT_PATH" "$uuid" "$ipt_version" 2>&1
 fi
 
 ################## remove ids not on IPT 
@@ -82,18 +83,18 @@ else
     echo "Checking for migration csv..."
     
 	iptpage=$(Rscript -e "rgbif::dataset_identifier('$uuid') |> dplyr::filter(type=='URL') |> dplyr::pull(identifier) |> unique() |> head(1) |> cat()")
-	echo $iptpage
-	powershell.exe -Command "Start-Process '$iptpage'"
+	echo "IPT page: $iptpage"
 
-    # Pause for user input
-    echo "Please enter latest version number..."
-    read -r ipt_version
+	echo "Scraping latest IPT version..."
+	WINDOWS_SCRIPT_PATH=$(wslpath -w "$SCRIPT_DIR/ipt_version_scrape.R")
+	ipt_version=$(Rscript.exe "$WINDOWS_SCRIPT_PATH" "$uuid" 2>/dev/null | tail -1)
+	echo "Latest IPT version: $ipt_version"
+	echo ""
 
-	echo $ipt_version
-	echo $uuid
-
-    # Assuming $uuid is the variable that holds your CSV file name
-	Rscript.exe migrate_ids_rm_not_on_ipt.R "$uuid" "$ipt_version"
+	echo "Running migrate_ids_rm_not_on_ipt.R..."
+	# Convert paths to Windows format for Rscript.exe
+	WINDOWS_SCRIPT_PATH=$(wslpath -w "$SCRIPT_DIR/migrate_ids_rm_not_on_ipt.R")
+	Rscript.exe "$WINDOWS_SCRIPT_PATH" "$uuid" "$ipt_version" 2>&1
 fi
 
 
@@ -119,17 +120,18 @@ user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
 if [[ $user_input == "no" ]] || [[ $user_input == "n" ]]; then
     echo "User chose to continue."
 else
-	echo run the following commands between the cat heads
+	echo "Run the following commands on prodcrawler1-vh:"
 	echo " /\\_/\\  "
 	echo "( o.o ) "
 	echo " > ^ < "
 	echo "sudo -u crap -i <<EOF"
 	echo "cd ~/util"
-	echo "./pipelines-gbif-id-migrator -f $1 -t $1 -p /home/jwaller/$1"
+	echo "./pipelines-gbif-id-migrator -f $uuid -t $uuid -p /home/jwaller/$uuid"
 	echo "EOF"
 	echo " /\\_/\\  "
 	echo "( o.o ) "
 	echo " > ^ < "
+	echo ""
 	ssh -t jwaller@prodcrawler1-vh.gbif.org
 fi
 
@@ -163,20 +165,21 @@ user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
 if [[ $user_input == "no" ]] || [[ $user_input == "n" ]]; then
     echo "User chose to continue."
 else
-	echo run the following commands between the dog heads
+	echo "Run the following commands on prodcrawler1-vh:"
 	echo " / \\__"
 	echo "(    @\\___"
 	echo " /         O"
 	echo "/   (_____/"
 	echo "/_____/   U"
-	echo sudo -u crap -i 
-	echo cd util
-	echo ./recrawl --clean-archive --clean-zk --recrawl $1
+	echo "sudo -u crap -i"
+	echo "cd util"
+	echo "./recrawl --clean-archive --clean-zk --recrawl $uuid"
 	echo " / \\__"
 	echo "(    @\\___"
 	echo " /         O"
 	echo "/   (_____/"
 	echo "/_____/   U"
+	echo ""
 	ssh -t jwaller@prodcrawler1-vh.gbif.org
 fi
 
@@ -199,7 +202,7 @@ if [ "$answer" != "n" ] && [ "$answer" != "no" ]; then
 	IFS=' ' read -r -a choices <<< "$emails"
 
 	# Call the function to display the menu
-	user_choice=$(choose_option.sh $emails)
+	user_choice=$("$SCRIPT_DIR/choose_option.sh" $emails)
 
 	# Display the saved output
 	echo $user_choice
