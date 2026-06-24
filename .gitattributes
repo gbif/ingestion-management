@@ -1,0 +1,2 @@
+# Ensure shell scripts always use LF line endings for WSL compatibility
+*.sh text eol=lf
