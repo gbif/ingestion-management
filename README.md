@@ -13,17 +13,17 @@ See also this video for background information: https://vimeo.com/873639382
 
 ## Issue Statistics
 
-Last updated: 2026-09-01 00:49 UTC
+Last updated: 2026-10-01 00:45 UTC
 
 ### Closed Issues by Label
 
 | Label | Closed Issues |
 |-------|---------------|
-| occurrenceID - publisher changed back | 168 |
-| occurrenceID - resumes ingestion with new | 673 |
-| occurrenceID - migrated | 380 |
+| occurrenceID - publisher changed back | 169 |
+| occurrenceID - resumes ingestion with new | 690 |
+| occurrenceID - migrated | 383 |
 | occurrenceID - checks disabled | 210 |
-| occurrenceID - large change in record counts | 169 |
+| occurrenceID - large change in record counts | 181 |
 
 ### Issue Closure Timeline
 
